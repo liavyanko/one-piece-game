@@ -38,9 +38,10 @@ export const determineWinner = async (teamA, teamB, playerNameA, playerNameB) =>
 
 Analysis Criteria:
 
-Character Strength: Overall combat power based on their rank (Yonko, Commander, etc.).
+Character Strength: Overall combat power based on their cannon appearance and rank in the series. (most important factor)
 
-Role Suitability: How well each character fits their assigned role (Captain, Tank, Healer, etc.).
+Role Suitability: How well each character fits their assigned role (Captain, Tank, Healer, etc.). (this is important but 
+not so much to overwhelm the character strength factor, for example, luffy as a support is still top tier but not as good as a captain)
 
 Team Synergy: The balance and effectiveness of the crew as a whole (e.g., does the Tank protect the Healer?).
 
@@ -169,4 +170,3 @@ REQUIRED RESPONSE FORMAT: Return ONLY the JSON object defined in the System Inst
     throw new Error(`AI Judgment failed: ${errorMessage}`);
   }
 };
-
