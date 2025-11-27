@@ -28,12 +28,26 @@ const ResultsScreen = () => {
         ⚔️ BATTLE RESULTS ⚔️
       </h2>
       
+      {/* Team Comparison - Always visible */}
+      <div className="relative z-10 mb-6">
+        <div className="card-premium p-4 sm:p-5 rounded-xl border-2 border-blue-600/40 shadow-xl backdrop-blur-sm overflow-visible">
+          <TeamComparison 
+            teamA={teamA}
+            teamB={teamB}
+            playerNameA={playerNameA}
+            playerNameB={playerNameB}
+          />
+        </div>
+      </div>
+
       {loading && (
-        <LoadingSpinner 
-          size="lg" 
-          text="AI Judge Analyzing Battle..." 
-          className="relative z-10"
-        />
+        <div className="relative z-10">
+          <LoadingSpinner 
+            size="lg" 
+            text="AI Judge Analyzing Battle..." 
+            className="mb-6"
+          />
+        </div>
       )}
 
       {winner && !loading && (
@@ -43,16 +57,6 @@ const ResultsScreen = () => {
             <div className="inline-block bg-gradient-to-r from-yellow-400 via-yellow-300 to-yellow-400 bg-clip-text text-transparent">
               🏆 WINNER: {getPlayerName(winner.winner, playerNameA, playerNameB)} 🏆
             </div>
-          </div>
-          
-          {/* Team Comparison */}
-          <div className="card-premium p-4 sm:p-5 rounded-xl border-2 border-blue-600/40 shadow-xl backdrop-blur-sm">
-            <TeamComparison 
-              teamA={teamA}
-              teamB={teamB}
-              playerNameA={playerNameA}
-              playerNameB={playerNameB}
-            />
           </div>
           
           {/* AI Judge Rationale */}

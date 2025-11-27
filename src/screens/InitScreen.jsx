@@ -1,6 +1,9 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useGameStore } from '../store/gameStore.js';
-import { GAME_STATES } from '../utils/constants.js';
+import { GAME_STATES, CHARACTER_CARDS_MOCK, TEAM_POSITIONS, MAX_TEAM_SIZE } from '../utils/constants.js';
+import { shuffleArray } from '../utils/gameLogic.js';
+import { determineWinner } from '../utils/api.js';
+import { getPlayerName } from '../utils/gameLogic.js';
 import Button from '../components/Button.jsx';
 
 /**
@@ -8,16 +11,95 @@ import Button from '../components/Button.jsx';
  */
 const InitScreen = () => {
   const setGameState = useGameStore((state) => state.setGameState);
+  const setPlayerNameA = useGameStore((state) => state.setPlayerNameA);
+  const setPlayerNameB = useGameStore((state) => state.setPlayerNameB);
+  const setTeamA = useGameStore((state) => state.setTeamA);
+  const setTeamB = useGameStore((state) => state.setTeamB);
+  const setGameStateStore = useGameStore((state) => state.setGameState);
+  const setWinner = useGameStore((state) => state.setWinner);
+  const setLoading = useGameStore((state) => state.setLoading);
+  const setMessage = useGameStore((state) => state.setMessage);
+  
+  const [devClickCount, setDevClickCount] = useState(0);
+  
+  // Developer mode: Auto-fill teams and go to results
+  const handleDevMode = async () => {
+    // Set player names
+    setPlayerNameA('Dev Player A');
+    setPlayerNameB('Dev Player B');
+    
+    // Shuffle deck and auto-assign cards
+    const shuffledDeck = shuffleArray(CHARACTER_CARDS_MOCK);
+    
+    // Auto-fill Team A
+    const newTeamA = [];
+    for (let i = 0; i < MAX_TEAM_SIZE; i++) {
+      if (shuffledDeck.length > 0) {
+        const card = shuffledDeck.shift();
+        newTeamA.push({
+          character: card,
+          position: TEAM_POSITIONS[i]
+        });
+      }
+    }
+    
+    // Auto-fill Team B
+    const newTeamB = [];
+    for (let i = 0; i < MAX_TEAM_SIZE; i++) {
+      if (shuffledDeck.length > 0) {
+        const card = shuffledDeck.shift();
+        newTeamB.push({
+          character: card,
+          position: TEAM_POSITIONS[i]
+        });
+      }
+    }
+    
+    setTeamA(newTeamA);
+    setTeamB(newTeamB);
+    setGameStateStore(GAME_STATES.END);
+    setMessage('Developer Mode: Auto-filled teams. Determining winner...');
+    
+    // Auto-determine winner
+    setLoading(true);
+    try {
+      const result = await determineWinner(newTeamA, newTeamB, 'Dev Player A', 'Dev Player B');
+      setWinner(result);
+      setMessage(`Judgment complete! The winner is ${getPlayerName(result.winner, 'Dev Player A', 'Dev Player B')}!`);
+    } catch (error) {
+      setWinner({
+        winner: 'PlayerA',
+        reasoning: 'Developer mode test - Auto-filled teams for testing purposes.'
+      });
+      setMessage('Developer mode: Test teams created.');
+    } finally {
+      setLoading(false);
+    }
+  };
+  
+  // Secret button: Click title 5 times
+  const handleTitleClick = () => {
+    const newCount = devClickCount + 1;
+    setDevClickCount(newCount);
+    if (newCount >= 5) {
+      handleDevMode();
+      setDevClickCount(0);
+    }
+  };
 
   return (
     <div className="flex-1 flex flex-col items-center justify-center text-center py-8 animate-fadeIn">
       {/* Premium Header with One Piece Theme */}
       <div className="mb-6 sm:mb-8">
         <div className="relative inline-block mb-4 animate-float" style={{ animationDuration: '3s' }}>
-          <h1 className="text-3xl sm:text-4xl md:text-5xl font-black text-gold-gradient mb-2 uppercase tracking-wider relative z-10">
+          <h1 
+            onClick={handleTitleClick}
+            className="text-3xl sm:text-4xl md:text-5xl font-black text-gold-gradient mb-2 uppercase tracking-wider relative z-10 cursor-pointer select-none transition-transform hover:scale-105 active:scale-95"
+            title={devClickCount > 0 ? `${5 - devClickCount} clicks remaining...` : ''}
+          >
             🎩 ONE PIECE DRAFT
           </h1>
-          <div className="absolute inset-0 text-3xl sm:text-4xl md:text-5xl font-black text-yellow-600/30 blur-sm uppercase tracking-wider">
+          <div className="absolute inset-0 text-3xl sm:text-4xl md:text-5xl font-black text-yellow-600/30 blur-sm uppercase tracking-wider pointer-events-none">
             🎩 ONE PIECE DRAFT
           </div>
         </div>
