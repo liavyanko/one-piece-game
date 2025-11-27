@@ -48,7 +48,7 @@ export const fetchCharacterImage = async (characterName) => {
       }
 
       // If API key is not configured, use fallback
-      if (!API_KEY) {
+      if (!API_KEY || API_KEY === 'YOUR_GEMINI_API_KEY_HERE') {
         const fallbackName = characterName.replace(/\s+/g, '_').replace(/['"]/g, '');
         const fallbackUrl = `https://static.wikia.nocookie.net/onepiece/images/thumb/${fallbackName}_Anime_Infobox.png/200px-${fallbackName}_Anime_Infobox.png`;
         return fallbackUrl;

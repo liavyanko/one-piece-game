@@ -15,7 +15,7 @@ import { getPlayerName } from './gameLogic.js';
  * @returns {Promise<{winner: string, reasoning: string}>} - Winner result
  */
 export const determineWinner = async (teamA, teamB, playerNameA, playerNameB) => {
-  if (!API_KEY) {
+  if (!API_KEY || API_KEY === 'YOUR_GEMINI_API_KEY_HERE') {
     throw new Error('API key not configured. Cannot determine winner.');
   }
 

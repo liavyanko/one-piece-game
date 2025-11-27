@@ -113,12 +113,12 @@ npm run preview
 
 ### API Key Setup
 
-1. Get a Gemini API key from [Google AI Studio](https://makersuite.google.com/app/apikey)
-2. Create a `.env` file in the project root
-3. Add: `VITE_GEMINI_API_KEY=your_key_here`
-4. Restart the dev server
+The API key is hardcoded in `src/utils/constants.js` for production use. If you need to update it:
 
-**Note**: The game works without an API key, but AI judgment will be unavailable.
+1. Get a Gemini API key from [Google AI Studio](https://makersuite.google.com/app/apikey)
+2. Update the `API_KEY` constant in `src/utils/constants.js`
+
+**Note**: The game works without a valid API key, but AI judgment will be unavailable.
 
 ## License
 

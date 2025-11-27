@@ -44,11 +44,9 @@ export const CARD_DRAW_DELAY = 1000; // Delay before drawing next card
 export const GEMINI_API_BASE = 'https://generativelanguage.googleapis.com/v1beta';
 export const GEMINI_MODEL = 'gemini-2.5-flash-preview-09-2025';
 
-// API Key - MUST be set via environment variable
-export const API_KEY = import.meta.env.VITE_GEMINI_API_KEY;
-if (!API_KEY) {
-  console.warn('VITE_GEMINI_API_KEY not set. AI judgment features will not work.');
-}
+// API Key - Hardcoded for production (no environment variables or GitHub secrets)
+// Replace 'YOUR_GEMINI_API_KEY_HERE' with your actual Gemini API key
+export const API_KEY = 'AIzaSyC_O666i7f2bp1gx7K6md5_GV-lT6PiZQU';
 
 export const FALLBACK_IMAGE_URL = 'https://placehold.co/100x96/1e293b/ffffff?text=OP+Character';
 
