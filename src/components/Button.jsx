@@ -32,14 +32,25 @@ const Button = ({
   
   const variantClass = disabled ? variantClasses.disabled : variantClasses[variant] || variantClasses.primary;
   
+  const handleTouchStart = (e) => {
+    if (!disabled && navigator.vibrate) {
+      navigator.vibrate(10);
+    }
+  };
+
   return (
     <button
       type={type}
       onClick={onClick}
+      onTouchStart={handleTouchStart}
       disabled={disabled}
       className={`${baseClasses} ${sizeClasses[size]} ${variantClass} ${className} ${
-        !disabled ? 'hover:scale-105 active:scale-95' : ''
+        !disabled ? 'hover:scale-105 active:scale-95 touch-manipulation' : ''
       }`}
+      style={!disabled ? { 
+        WebkitTapHighlightColor: 'transparent',
+        touchAction: 'manipulation'
+      } : {}}
       {...props}
     >
       <span className="relative z-10">{children}</span>

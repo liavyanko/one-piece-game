@@ -52,12 +52,32 @@ const App = () => {
             </div>
           )}
 
-          {/* Game Screens */}
-          {gameState === GAME_STATES.INIT && <InitScreen />}
-          {gameState === GAME_STATES.NAME_INPUT && <NameInputScreen />}
-          {gameState === GAME_STATES.RPS && <RPSScreen />}
-          {gameState === GAME_STATES.DRAWING && <DraftScreen />}
-          {(gameState === GAME_STATES.TEAM_COMPARISON || gameState === GAME_STATES.BATTLE_RESULTS || gameState === GAME_STATES.END) && <ResultsScreen />}
+          {/* Game Screens with Transitions */}
+          {gameState === GAME_STATES.INIT && (
+            <div className="screen-enter-right">
+              <InitScreen />
+            </div>
+          )}
+          {gameState === GAME_STATES.NAME_INPUT && (
+            <div className="screen-enter-right">
+              <NameInputScreen />
+            </div>
+          )}
+          {gameState === GAME_STATES.RPS && (
+            <div className="screen-enter-right">
+              <RPSScreen />
+            </div>
+          )}
+          {gameState === GAME_STATES.DRAWING && (
+            <div className="screen-enter-right">
+              <DraftScreen />
+            </div>
+          )}
+          {(gameState === GAME_STATES.TEAM_COMPARISON || gameState === GAME_STATES.BATTLE_RESULTS || gameState === GAME_STATES.END) && (
+            <div className="screen-enter-right">
+              <ResultsScreen />
+            </div>
+          )}
 
           {/* Reset Button (visible during game) */}
           {(gameState === GAME_STATES.RPS || gameState === GAME_STATES.DRAWING) && (

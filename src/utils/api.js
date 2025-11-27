@@ -57,7 +57,12 @@ ${teamBString}
 
 REQUIRED RESPONSE FORMAT: Return ONLY the JSON object defined in the System Instruction.`;
 
-  const systemPrompt = `You are a highly experienced expert with encyclopedic knowledge of the 'One Piece' universe. Your role is to judge a battle between two pirate crews based on their composition. Your analysis MUST be objective, detailed, and focus on team synergy and role fulfillment. Your final output MUST be a JSON object only. The structure must be: { "winner": "PlayerA" | "PlayerB", "reasoning": "Your detailed, 2-3 sentence justification explaining the winner based on crew composition." }`;
+  const systemPrompt = `You are a highly experienced expert with encyclopedic knowledge of the 'One Piece' universe. 
+  Your role is to judge a battle between two pirate crews based on their composition. 
+  Your analysis MUST be objective, detailed, and focus on team synergy and role fulfillment.
+  Your final output MUST be a JSON object only. 
+  The structure must be: { "winner": "PlayerA" | "PlayerB", "reasoning": "Your detailed, 2-3 sentence justification explaining
+   the winner based on crew composition." }`;
 
   const apiUrl = `${GEMINI_API_BASE}/models/${GEMINI_MODEL}:generateContent?key=${API_KEY}`;
 

@@ -44,8 +44,15 @@ const TeamDisplay = React.memo(({ team, teamName, isCurrentPlayer, skipUsed, isR
           {!isRPSPhase && (
             <div className="flex items-center gap-2">
               {isCurrentPlayer && (
-                <div className="bg-gradient-to-r from-red-600 via-red-700 to-red-600 px-3 py-1.5 rounded-full border-2 border-red-500/60 shadow-lg animate-pulse">
-                  <span className="text-[10px] sm:text-xs font-black text-white">⚡ YOUR TURN</span>
+                <div className="relative">
+                  <div className="absolute inset-0 bg-yellow-400/30 rounded-full blur-xl turn-indicator-pulse" />
+                  <div className="relative bg-gradient-to-r from-yellow-400 via-yellow-500 to-yellow-400 px-4 py-2 rounded-full border-2 border-yellow-300 shadow-lg turn-indicator-pulse">
+                    <span className="text-[10px] sm:text-xs font-black text-gray-900 flex items-center gap-2">
+                      <span className="animate-spin">⚡</span>
+                      <span>YOUR TURN</span>
+                      <span className="animate-bounce">⬇️</span>
+                    </span>
+                  </div>
                 </div>
               )}
               <div className={`px-3 py-1.5 rounded-full border-2 text-[10px] sm:text-xs font-black backdrop-blur-sm shadow-lg ${
@@ -80,7 +87,7 @@ const TeamDisplay = React.memo(({ team, teamName, isCurrentPlayer, skipUsed, isR
         <div className="p-4 sm:p-5 relative z-10">
           <div className="grid grid-cols-2 gap-3 sm:gap-4 p-3 bg-gray-950/30 rounded-xl backdrop-blur-sm border border-yellow-600/20">
             {TEAM_POSITIONS.map((position, index) => (
-              <div key={index} className="relative">
+              <div key={index} className="relative" data-slot-index={index}>
                 {team[index] ? (
                   <Card character={team[index].character} position={position} />
                 ) : (

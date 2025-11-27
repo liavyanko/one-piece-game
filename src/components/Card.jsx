@@ -52,10 +52,9 @@ const Card = React.memo(({ character, position }) => {
 
   return (
     <div 
-      className={`card-premium ${rarityClass} rounded-xl overflow-hidden relative group cursor-pointer`}
+      className={`card-premium ${rarityClass} rounded-xl overflow-hidden relative group cursor-pointer animate-cardDraw3D`}
       role="img"
       aria-label={`${character.name} - ${position} - ${character.rank}`}
-      style={{ animation: 'cardDraw 0.6s ease-out' }}
     >
       {/* Card Image with Overlay */}
       <div className="relative overflow-hidden">

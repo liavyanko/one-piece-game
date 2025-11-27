@@ -115,6 +115,21 @@ const DraftScreen = () => {
     setCurrentCard(null);
     setError(null);
     setMessage(`${currentCard.name} successfully placed as ${TEAM_POSITIONS[slotIndex]}!`);
+    
+    // Trigger placement success animation
+    setTimeout(() => {
+      const slotElement = document.querySelector(`[data-slot-index="${slotIndex}"]`);
+      if (slotElement) {
+        slotElement.classList.add('placement-success');
+        // Trigger haptic feedback if available
+        if (navigator.vibrate) {
+          navigator.vibrate(50);
+        }
+        setTimeout(() => {
+          slotElement.classList.remove('placement-success');
+        }, 600);
+      }
+    }, 50);
 
     // Check for game end - need to get fresh state after team update
     const updatedState = useGameStore.getState();
