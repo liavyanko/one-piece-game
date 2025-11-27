@@ -91,18 +91,37 @@ REQUIRED RESPONSE FORMAT: Return ONLY the JSON object defined in the System Inst
       const jsonText = data.candidates?.[0]?.content?.parts?.[0]?.text;
       
       if (jsonText) {
-        result = JSON.parse(jsonText);
+        try {
+          result = JSON.parse(jsonText);
+        } catch (parseError) {
+          console.error('JSON parse error:', parseError, 'Raw text:', jsonText);
+          throw new Error(`Failed to parse AI response: ${parseError.message}`);
+        }
         
         // Validate result structure - must be binary (PlayerA or PlayerB only)
-        if (result.winner && (result.winner === PLAYERS.A || result.winner === PLAYERS.B)) {
-          // Ensure winner is exactly PlayerA or PlayerB (binary result)
-          result.winner = result.winner === PLAYERS.A ? PLAYERS.A : PLAYERS.B;
+        if (result && result.winner) {
+          // Normalize winner value - handle variations
+          const winnerValue = result.winner.toString().trim();
+          if (winnerValue === PLAYERS.A || winnerValue === 'PlayerA' || winnerValue === 'A') {
+            result.winner = PLAYERS.A;
+          } else if (winnerValue === PLAYERS.B || winnerValue === 'PlayerB' || winnerValue === 'B') {
+            result.winner = PLAYERS.B;
+          } else {
+            throw new Error(`Invalid winner value: ${winnerValue}. Must be PlayerA or PlayerB`);
+          }
+          
+          // Ensure reasoning exists
+          if (!result.reasoning || result.reasoning.trim() === '') {
+            result.reasoning = 'The AI determined the winner based on team composition and strategic analysis.';
+          }
+          
           break; // Success
         } else {
-          throw new Error('Invalid response structure from API - winner must be PlayerA or PlayerB');
+          throw new Error('Invalid response structure from API - missing winner field');
         }
       } else {
-        throw new Error('API response missing content');
+        console.error('API response structure:', data);
+        throw new Error('API response missing content. Check API key and model configuration.');
       }
     } catch (error) {
       lastError = error;

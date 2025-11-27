@@ -57,7 +57,7 @@ const App = () => {
           {gameState === GAME_STATES.NAME_INPUT && <NameInputScreen />}
           {gameState === GAME_STATES.RPS && <RPSScreen />}
           {gameState === GAME_STATES.DRAWING && <DraftScreen />}
-          {gameState === GAME_STATES.END && <ResultsScreen />}
+          {(gameState === GAME_STATES.TEAM_COMPARISON || gameState === GAME_STATES.BATTLE_RESULTS || gameState === GAME_STATES.END) && <ResultsScreen />}
 
           {/* Reset Button (visible during game) */}
           {(gameState === GAME_STATES.RPS || gameState === GAME_STATES.DRAWING) && (

@@ -7,7 +7,9 @@ export const GAME_STATES = {
   NAME_INPUT: 'NAME_INPUT',
   RPS: 'RPS',
   DRAWING: 'DRAWING',
-  END: 'END'
+  TEAM_COMPARISON: 'TEAM_COMPARISON',
+  BATTLE_RESULTS: 'BATTLE_RESULTS',
+  END: 'END' // Legacy - keeping for compatibility
 };
 
 export const PLAYERS = {

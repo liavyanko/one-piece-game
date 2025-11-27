@@ -124,31 +124,9 @@ const DraftScreen = () => {
     const isTeamBSlotsFull = isTeamComplete(updatedTeamB);
 
     if (isTeamASlotsFull && isTeamBSlotsFull) {
-      setGameState(GAME_STATES.END);
-      setMessage('All positions filled! Game ended. Initiating AI Judgement...');
-      const timeoutId = setTimeout(async () => {
-        setLoading(true);
-        try {
-          // Get fresh state after team updates
-          const finalState = useGameStore.getState();
-          const finalTeamA = isPlayerA ? newTeam : finalState.teamA;
-          const finalTeamB = isPlayerA ? finalState.teamB : newTeam;
-          const result = await determineWinner(finalTeamA, finalTeamB, playerNameA, playerNameB);
-          const winnerName = getPlayerName(result.winner, playerNameA, playerNameB);
-          setWinner(result);
-          setMessage(`Judgment complete! The winner is ${winnerName}!`);
-          setError(null);
-        } catch (error) {
-          setError(`AI Judgment failed: ${error.message}`);
-          setWinner({ 
-            winner: 'NONE', 
-            reasoning: 'The AI could not determine a clear winner. Please try starting a new game.' 
-          });
-        } finally {
-          setLoading(false);
-        }
-      }, TRANSITION_DELAY);
-      addTimeout(timeoutId);
+      setGameState(GAME_STATES.TEAM_COMPARISON);
+      setMessage('All positions filled! View your final crews below.');
+      // Don't call AI judgment yet - wait for user to click "See Battle Results"
     } else {
       const nextPlayer = isPlayerA ? PLAYERS.B : PLAYERS.A;
       setPlayerTurn(nextPlayer);

@@ -57,24 +57,8 @@ const InitScreen = () => {
     
     setTeamA(newTeamA);
     setTeamB(newTeamB);
-    setGameStateStore(GAME_STATES.END);
-    setMessage('Developer Mode: Auto-filled teams. Determining winner...');
-    
-    // Auto-determine winner
-    setLoading(true);
-    try {
-      const result = await determineWinner(newTeamA, newTeamB, 'Dev Player A', 'Dev Player B');
-      setWinner(result);
-      setMessage(`Judgment complete! The winner is ${getPlayerName(result.winner, 'Dev Player A', 'Dev Player B')}!`);
-    } catch (error) {
-      setWinner({
-        winner: 'PlayerA',
-        reasoning: 'Developer mode test - Auto-filled teams for testing purposes.'
-      });
-      setMessage('Developer mode: Test teams created.');
-    } finally {
-      setLoading(false);
-    }
+    setGameStateStore(GAME_STATES.TEAM_COMPARISON);
+    setMessage('Developer Mode: Auto-filled teams. Click "See Battle Results" to determine winner.');
   };
   
   // Secret button: Click title 5 times

@@ -1,35 +1,55 @@
-import React, { useRef } from 'react';
+import React, { useEffect } from 'react';
 import { useGameStore } from '../store/gameStore.js';
-import { PLAYERS } from '../utils/constants.js';
+import { PLAYERS, GAME_STATES } from '../utils/constants.js';
 import { getPlayerName } from '../utils/gameLogic.js';
+import { determineWinner } from '../utils/api.js';
 import LoadingSpinner from '../components/LoadingSpinner.jsx';
 import Button from '../components/Button.jsx';
 import TeamComparison from '../components/TeamComparison.jsx';
 
 /**
- * Results Screen - Displays battle results and winner
+ * Team Comparison Screen - Shows final crews side-by-side
  */
-const ResultsScreen = () => {
-  const winner = useGameStore((state) => state.winner);
-  const loading = useGameStore((state) => state.loading);
+const TeamComparisonScreen = () => {
   const playerNameA = useGameStore((state) => state.playerNameA);
   const playerNameB = useGameStore((state) => state.playerNameB);
   const teamA = useGameStore((state) => state.teamA);
   const teamB = useGameStore((state) => state.teamB);
-  const resetGame = useGameStore((state) => state.resetGame);
-  
-  const battleResultsRef = useRef(null);
+  const setGameState = useGameStore((state) => state.setGameState);
+  const setLoading = useGameStore((state) => state.setLoading);
+  const setWinner = useGameStore((state) => state.setWinner);
+  const setMessage = useGameStore((state) => state.setMessage);
+  const setError = useGameStore((state) => state.setError);
 
-  const scrollToBattleResults = () => {
-    if (battleResultsRef.current) {
-      battleResultsRef.current.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  const handleSeeBattleResults = async () => {
+    setLoading(true);
+    setMessage('Initiating AI Judgment...');
+    setError(null);
+    
+    try {
+      const result = await determineWinner(teamA, teamB, playerNameA, playerNameB);
+      const winnerName = getPlayerName(result.winner, playerNameA, playerNameB);
+      setWinner(result);
+      setMessage(`Judgment complete! The winner is ${winnerName}!`);
+      setError(null);
+      setGameState(GAME_STATES.BATTLE_RESULTS);
+    } catch (error) {
+      console.error('AI Judgment error:', error);
+      setError(`AI Judgment failed: ${error.message}`);
+      setWinner({ 
+        winner: 'PlayerA', 
+        reasoning: `The AI could not determine a clear winner. Error: ${error.message}. Please try starting a new game.` 
+      });
+      setGameState(GAME_STATES.BATTLE_RESULTS);
+    } finally {
+      setLoading(false);
     }
   };
 
   return (
     <div className="flex-1 flex flex-col min-h-0 overflow-y-auto" style={{ WebkitOverflowScrolling: 'touch', overscrollBehaviorY: 'contain' }}>
       <div className="flex-1 space-y-4 pb-6">
-        {/* Team Comparison Section - At the Top */}
+        {/* Team Comparison Section */}
         <div className="mt-5 p-5 sm:p-6 card-premium rounded-2xl shadow-2xl border-2 border-blue-500/50 relative overflow-hidden">
           {/* Animated Background */}
           <div className="absolute inset-0 bg-gradient-to-br from-blue-900/40 via-blue-800/30 to-blue-900/40" />
@@ -46,7 +66,7 @@ const ResultsScreen = () => {
             {/* See Battle Results Button */}
             <div className="mt-6">
               <Button
-                onClick={scrollToBattleResults}
+                onClick={handleSeeBattleResults}
                 variant="primary"
                 size="lg"
                 className="w-full"
@@ -60,12 +80,26 @@ const ResultsScreen = () => {
             </div>
           </div>
         </div>
+      </div>
+    </div>
+  );
+};
 
-        {/* Battle Results Section - Below Team Comparison */}
-        <div 
-          ref={battleResultsRef}
-          className="p-5 sm:p-6 card-premium rounded-2xl shadow-2xl border-2 border-red-500/50 text-center relative overflow-hidden"
-        >
+/**
+ * Battle Results Screen - Displays winner and AI rationale
+ */
+const BattleResultsScreen = () => {
+  const winner = useGameStore((state) => state.winner);
+  const loading = useGameStore((state) => state.loading);
+  const playerNameA = useGameStore((state) => state.playerNameA);
+  const playerNameB = useGameStore((state) => state.playerNameB);
+  const resetGame = useGameStore((state) => state.resetGame);
+
+  return (
+    <div className="flex-1 flex flex-col min-h-0 overflow-y-auto" style={{ WebkitOverflowScrolling: 'touch', overscrollBehaviorY: 'contain' }}>
+      <div className="flex-1 space-y-4 pb-6">
+        {/* Battle Results Section */}
+        <div className="mt-5 p-5 sm:p-6 card-premium rounded-2xl shadow-2xl border-2 border-red-500/50 text-center relative overflow-hidden">
           {/* Animated Background */}
           <div className="absolute inset-0 bg-gradient-to-br from-red-900/40 via-red-800/30 to-red-900/40" />
           <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,rgba(239,68,68,0.1)_1px,transparent_1px)] bg-[length:30px_30px]" />
@@ -120,6 +154,22 @@ const ResultsScreen = () => {
       </div>
     </div>
   );
+};
+
+/**
+ * Results Screen - Router component that shows appropriate screen based on game state
+ */
+const ResultsScreen = () => {
+  const gameState = useGameStore((state) => state.gameState);
+  
+  if (gameState === GAME_STATES.TEAM_COMPARISON) {
+    return <TeamComparisonScreen />;
+  } else if (gameState === GAME_STATES.BATTLE_RESULTS || gameState === GAME_STATES.END) {
+    return <BattleResultsScreen />;
+  }
+  
+  // Fallback to team comparison if state is unclear
+  return <TeamComparisonScreen />;
 };
 
 export default ResultsScreen;
