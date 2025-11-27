@@ -43,7 +43,11 @@ const CARD_DRAW_DELAY = 1000; // Delay before drawing next card
 // API Configuration
 const GEMINI_API_BASE = 'https://generativelanguage.googleapis.com/v1beta';
 const GEMINI_MODEL = 'gemini-2.5-flash-preview-09-2025';
-const API_KEY = import.meta.env.VITE_GEMINI_API_KEY || 'AIzaSyC_O666i7f2bp1gx7K6md5_GV-lT6PiZQU';
+// API Key - MUST be set via environment variable for security
+const API_KEY = import.meta.env.VITE_GEMINI_API_KEY;
+if (!API_KEY) {
+  console.warn('VITE_GEMINI_API_KEY not set. Some features may not work.');
+}
 
 // Gemini API will be used for image fetching
 
