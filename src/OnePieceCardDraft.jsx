@@ -979,13 +979,14 @@ REQUIRED RESPONSE FORMAT: Return ONLY the JSON object defined in the System Inst
         <div 
           className={`
             card-premium rounded-b-2xl border-t-0
-            shadow-2xl overflow-hidden relative
+            shadow-2xl overflow-visible relative
             transition-all duration-500 ease-in-out
             ${isCollapsed 
-              ? 'max-h-0 opacity-0 pointer-events-none' 
-              : 'max-h-[2000px] opacity-100'
+              ? 'max-h-0 opacity-0 pointer-events-none overflow-hidden' 
+              : 'max-h-none opacity-100'
             }
           `}
+          style={{ WebkitOverflowScrolling: 'touch' }}
         >
           {/* Background Pattern */}
           <div className="absolute inset-0 bg-gradient-to-br from-gray-900/80 via-gray-800/60 to-gray-900/80" />
@@ -1003,8 +1004,14 @@ REQUIRED RESPONSE FORMAT: Return ONLY the JSON object defined in the System Inst
                   
                   {isCurrentPlayer && gameState === GAME_STATES.DRAWING && !team[index] && currentCard && (
                     <button
-                      onClick={() => onPlaceCard(index)}
-                      className="mt-2 w-full button-premium text-gray-900 text-[10px] sm:text-xs font-black py-2 sm:py-2.5 rounded-lg transition-all duration-300 hover:scale-105 active:scale-95 relative overflow-hidden"
+                      onClick={(e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        onPlaceCard(index);
+                      }}
+                      onTouchStart={(e) => e.stopPropagation()}
+                      className="mt-2 w-full button-premium text-gray-900 text-[10px] sm:text-xs font-black py-2 sm:py-2.5 rounded-lg transition-all duration-300 hover:scale-105 active:scale-95 relative overflow-hidden touch-manipulation"
+                      style={{ touchAction: 'manipulation' }}
                       aria-label={`Place card as ${position}`}
                     >
                       <span className="relative z-10 flex items-center justify-center gap-1">
@@ -1029,15 +1036,15 @@ REQUIRED RESPONSE FORMAT: Return ONLY the JSON object defined in the System Inst
   // ============================================================================
 
   return (
-    <div className="min-h-screen ocean-background p-2 sm:p-3 font-sans overflow-x-hidden relative">
+    <div className="min-h-screen ocean-background p-2 sm:p-3 font-sans overflow-x-hidden relative" style={{ WebkitOverflowScrolling: 'touch', overscrollBehaviorY: 'contain' }}>
       {/* Animated Background Elements */}
-      <div className="fixed inset-0 pointer-events-none overflow-hidden z-0">
+      <div className="fixed inset-0 pointer-events-none overflow-hidden z-0" style={{ touchAction: 'none' }}>
         <div className="absolute top-10 left-10 w-32 h-32 bg-yellow-400/5 rounded-full blur-3xl animate-float" style={{ animationDuration: '6s' }} />
         <div className="absolute bottom-20 right-10 w-40 h-40 bg-blue-400/5 rounded-full blur-3xl animate-float" style={{ animationDuration: '8s', animationDelay: '1s' }} />
         <div className="absolute top-1/2 left-1/4 w-24 h-24 bg-red-400/5 rounded-full blur-2xl animate-float" style={{ animationDuration: '7s', animationDelay: '2s' }} />
       </div>
 
-      <div className="max-w-md mx-auto w-full relative z-10 min-h-screen flex flex-col">
+      <div className="max-w-md mx-auto w-full relative z-10 min-h-screen flex flex-col" style={{ WebkitOverflowScrolling: 'touch' }}>
         {/* Error Display - Modern Alert (only show when not in INIT state) */}
         {error && gameState !== GAME_STATES.INIT && (
           <div className="bg-gradient-to-r from-red-900/90 via-red-800/90 to-red-900/90 p-3 rounded-xl text-center font-bold text-xs text-red-100 border-2 border-red-500/50 shadow-xl mb-3 backdrop-blur-sm">
@@ -1234,11 +1241,11 @@ REQUIRED RESPONSE FORMAT: Return ONLY the JSON object defined in the System Inst
 
         {/* Phase 3: Drawing and Placement */}
         {gameState === GAME_STATES.DRAWING && (
-          <>
+          <div className="flex-1 flex flex-col min-h-0" style={{ WebkitOverflowScrolling: 'touch', overscrollBehaviorY: 'contain' }}>
             {/* Current Card Display - Premium Spotlight */}
             {currentCard && (
-              <div className="relative z-30 mb-5 animate-cardDraw">
-                <div className="card-premium rounded-2xl p-5 sm:p-6 border-2 border-yellow-500/60 shadow-2xl relative overflow-hidden glow-effect">
+              <div className="relative z-30 mb-4 sm:mb-5 flex-shrink-0 animate-cardDraw">
+                <div className="card-premium rounded-2xl p-4 sm:p-5 border-2 border-yellow-500/60 shadow-2xl relative overflow-hidden glow-effect">
                   {/* Animated Background */}
                   <div className="absolute inset-0 bg-gradient-to-br from-yellow-900/20 via-red-900/20 to-yellow-900/20" />
                   <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,rgba(212,175,55,0.1)_1px,transparent_1px)] bg-[length:30px_30px]" />
@@ -1279,29 +1286,31 @@ REQUIRED RESPONSE FORMAT: Return ONLY the JSON object defined in the System Inst
               </div>
             )}
 
-            {/* Stacked Decks */}
-            <div className="relative min-h-[400px] sm:min-h-[500px]">
-              <TeamDisplay 
-                team={teamA} 
-                teamName="Player A" 
-                isCurrentPlayer={playerTurn === PLAYERS.A}
-                skipUsed={skipUsedA}
-                isRPSPhase={false}
-                isExpanded={playerTurn === PLAYERS.A}
-                onPlaceCard={handlePlacementOrSkip}
-              />
-              
-              <TeamDisplay 
-                team={teamB} 
-                teamName="Player B" 
-                isCurrentPlayer={playerTurn === PLAYERS.B}
-                skipUsed={skipUsedB}
-                isRPSPhase={false}
-                isExpanded={playerTurn === PLAYERS.B}
-                onPlaceCard={handlePlacementOrSkip}
-              />
+            {/* Stacked Decks - Scrollable Container */}
+            <div className="relative flex-1 min-h-0 overflow-y-auto" style={{ WebkitOverflowScrolling: 'touch', overscrollBehaviorY: 'contain', touchAction: 'pan-y' }}>
+              <div className="pb-4">
+                <TeamDisplay 
+                  team={teamA} 
+                  teamName="Player A" 
+                  isCurrentPlayer={playerTurn === PLAYERS.A}
+                  skipUsed={skipUsedA}
+                  isRPSPhase={false}
+                  isExpanded={playerTurn === PLAYERS.A}
+                  onPlaceCard={handlePlacementOrSkip}
+                />
+                
+                <TeamDisplay 
+                  team={teamB} 
+                  teamName="Player B" 
+                  isCurrentPlayer={playerTurn === PLAYERS.B}
+                  skipUsed={skipUsedB}
+                  isRPSPhase={false}
+                  isExpanded={playerTurn === PLAYERS.B}
+                  onPlaceCard={handlePlacementOrSkip}
+                />
+              </div>
             </div>
-          </>
+          </div>
         )}
 
         {/* Phase 4: Premium Results Display */}
