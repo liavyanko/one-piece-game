@@ -147,6 +147,23 @@ const InitScreen = () => {
         </Button>
         <p className="mt-4 text-xs text-gray-400 font-medium">Begin Your Grand Adventure</p>
       </div>
+
+      {/* Developer Mode Button - Visible for Testing */}
+      <div className="mt-4 animate-slideUp" style={{ animationDelay: '0.3s' }}>
+        <Button 
+          onClick={handleDevMode}
+          variant="secondary"
+          size="md"
+          className="relative opacity-70 hover:opacity-100 transition-opacity"
+        >
+          <span className="flex items-center gap-2 text-xs sm:text-sm">
+            <span>🔧</span>
+            <span>Developer Mode</span>
+            <span className="text-[10px] opacity-75">(Auto-fill & Test)</span>
+          </span>
+        </Button>
+        <p className="mt-2 text-[10px] text-gray-500 font-medium">Skip to results with auto-filled teams</p>
+      </div>
     </div>
   );
 };
