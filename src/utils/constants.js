@@ -46,7 +46,7 @@ export const GEMINI_MODEL = 'gemini-2.5-flash-preview-09-2025';
 
 // API Key - Hardcoded for production (no environment variables or GitHub secrets)
 // Replace 'YOUR_GEMINI_API_KEY_HERE' with your actual Gemini API key
-export const API_KEY = 'AIzaSyC_O666i7f2bp1gx7K6md5_GV-lT6PiZQU';
+export const API_KEY = 'AIzaSyAZOS2iDDBXcoHvuk3woRJV2QVny5GnTbs';
 
 export const FALLBACK_IMAGE_URL = 'https://placehold.co/100x96/1e293b/ffffff?text=OP+Character';
 
