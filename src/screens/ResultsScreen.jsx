@@ -15,6 +15,7 @@ const TeamComparisonScreen = () => {
   const playerNameB = useGameStore((state) => state.playerNameB);
   const teamA = useGameStore((state) => state.teamA);
   const teamB = useGameStore((state) => state.teamB);
+  const loading = useGameStore((state) => state.loading);
   const setGameState = useGameStore((state) => state.setGameState);
   const setLoading = useGameStore((state) => state.setLoading);
   const setWinner = useGameStore((state) => state.setWinner);
@@ -22,6 +23,11 @@ const TeamComparisonScreen = () => {
   const setError = useGameStore((state) => state.setError);
 
   const handleSeeBattleResults = async () => {
+    // Prevent multiple simultaneous calls
+    if (loading) {
+      return;
+    }
+
     setLoading(true);
     setMessage('Initiating AI Judgment...');
     setError(null);
@@ -29,18 +35,23 @@ const TeamComparisonScreen = () => {
     try {
       const result = await determineWinner(teamA, teamB, playerNameA, playerNameB);
       const winnerName = getPlayerName(result.winner, playerNameA, playerNameB);
+      
+      // Only update state once with final result
       setWinner(result);
       setMessage(`Judgment complete! The winner is ${winnerName}!`);
       setError(null);
       setGameState(GAME_STATES.BATTLE_RESULTS);
     } catch (error) {
-      console.error('AI Judgment error:', error);
-      setError(`AI Judgment failed: ${error.message}`);
-      setWinner({ 
-        winner: 'PlayerA', 
-        reasoning: `The AI could not determine a clear winner. Error: ${error.message}. Please try starting a new game.` 
-      });
-      setGameState(GAME_STATES.BATTLE_RESULTS);
+      // Only update on final error, not during retries
+      if (error.message !== 'Request was cancelled') {
+        console.error('AI Judgment error:', error);
+        setError(`AI Judgment failed: ${error.message}`);
+        setWinner({ 
+          winner: 'PlayerA', 
+          reasoning: `The AI could not determine a clear winner. Error: ${error.message}. Please try starting a new game.` 
+        });
+        setGameState(GAME_STATES.BATTLE_RESULTS);
+      }
     } finally {
       setLoading(false);
     }
@@ -70,11 +81,21 @@ const TeamComparisonScreen = () => {
                 variant="primary"
                 size="lg"
                 className="w-full"
+                disabled={loading}
               >
                 <span className="flex items-center justify-center gap-2">
-                  <span>⚔️</span>
-                  <span>See Battle Results</span>
-                  <span>⬇️</span>
+                  {loading ? (
+                    <>
+                      <span className="animate-spin">⏳</span>
+                      <span>Processing...</span>
+                    </>
+                  ) : (
+                    <>
+                      <span>⚔️</span>
+                      <span>See Battle Results</span>
+                      <span>⬇️</span>
+                    </>
+                  )}
                 </span>
               </Button>
             </div>

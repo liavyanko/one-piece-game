@@ -14,10 +14,22 @@ import { getPlayerName } from './gameLogic.js';
  * @param {string} playerNameB - Player B's name
  * @returns {Promise<{winner: string, reasoning: string}>} - Winner result
  */
+// Track ongoing requests to prevent duplicates
+let ongoingRequest = null;
+
 export const determineWinner = async (teamA, teamB, playerNameA, playerNameB) => {
   if (!API_KEY || API_KEY === 'YOUR_GEMINI_API_KEY_HERE') {
     throw new Error('API key not configured. Cannot determine winner.');
   }
+
+  // Cancel any ongoing request
+  if (ongoingRequest) {
+    ongoingRequest.abort();
+  }
+
+  // Create abort controller for this request
+  const abortController = new AbortController();
+  ongoingRequest = abortController;
 
   const teamAString = formatTeamForAI(teamA);
   const teamBString = formatTeamForAI(teamB);
@@ -76,10 +88,16 @@ REQUIRED RESPONSE FORMAT: Return ONLY the JSON object defined in the System Inst
   // Retry logic with exponential backoff
   for (let retry = 0; retry < MAX_RETRIES; retry++) {
     try {
+      // Check if request was aborted
+      if (abortController.signal.aborted) {
+        throw new Error('Request was cancelled');
+      }
+
       const response = await fetch(apiUrl, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload)
+        body: JSON.stringify(payload),
+        signal: abortController.signal
       });
 
       if (!response.ok) {
@@ -124,6 +142,11 @@ REQUIRED RESPONSE FORMAT: Return ONLY the JSON object defined in the System Inst
         throw new Error('API response missing content. Check API key and model configuration.');
       }
     } catch (error) {
+      // If request was aborted, don't retry
+      if (error.name === 'AbortError' || error.message === 'Request was cancelled') {
+        throw error;
+      }
+      
       lastError = error;
       console.error(`AI Judgment attempt ${retry + 1} failed:`, error);
       
@@ -132,6 +155,11 @@ REQUIRED RESPONSE FORMAT: Return ONLY the JSON object defined in the System Inst
         await delay(RETRY_DELAY_BASE * Math.pow(2, retry));
       }
     }
+  }
+
+  // Clear ongoing request
+  if (ongoingRequest === abortController) {
+    ongoingRequest = null;
   }
 
   if (result && result.winner) {
