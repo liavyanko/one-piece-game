@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useMemo } from 'react';
+import React, { useCallback, useEffect, useMemo, useRef } from 'react';
 import { useGameStore } from '../store/gameStore.js';
 import { GAME_STATES, PLAYERS, MAX_TEAM_SIZE, CARD_DRAW_DELAY, TRANSITION_DELAY, TEAM_POSITIONS } from '../utils/constants.js';
 import { isTeamComplete, getPlayerName } from '../utils/gameLogic.js';
@@ -162,6 +162,9 @@ const DraftScreen = () => {
     }
   }, [allSlotsFilled, deckEmpty, playerNameA, playerNameB, handleDrawCard, addTimeout, setTeamA, setTeamB, setSkipUsedA, setSkipUsedB, setCurrentCard, setError, setMessage, setPlayerTurn, setGameState, setLoading, setWinner, currentCard, playerTurn, teamA, teamB, skipUsedA, skipUsedB]);
 
+  // Card ref for scrolling into view
+  const cardRef = useRef(null);
+
   // Initial card draw on mount
   useEffect(() => {
     if (currentCard === null && !deckEmpty) {
@@ -169,11 +172,33 @@ const DraftScreen = () => {
     }
   }, []);
 
+  // Scroll card into view when a new card is drawn
+  useEffect(() => {
+    if (currentCard && cardRef.current) {
+      // Small delay to ensure DOM is updated
+      setTimeout(() => {
+        cardRef.current?.scrollIntoView({ 
+          behavior: 'smooth', 
+          block: 'start',
+          inline: 'nearest'
+        });
+      }, 100);
+    }
+  }, [currentCard]);
+
   return (
     <div className="flex-1 flex flex-col min-h-0" style={{ WebkitOverflowScrolling: 'touch', overscrollBehaviorY: 'contain' }}>
-      {/* Current Card Display - Dynamic Floating Card */}
+      {/* Current Card Display - Sticky at top when scrolled */}
       {currentCard && (
-        <div className="relative z-30 mb-3 sm:mb-4 flex-shrink-0 animate-cardSlideIn">
+        <div 
+          ref={cardRef}
+          className="sticky top-0 z-50 mb-3 sm:mb-4 flex-shrink-0 animate-cardSlideIn bg-gradient-to-b from-gray-900/98 via-gray-900/95 to-transparent pb-3 -mx-2 px-2 backdrop-blur-md border-b border-yellow-600/20"
+          style={{ 
+            marginTop: '-8px',
+            paddingTop: '12px',
+            boxShadow: '0 4px 12px rgba(0, 0, 0, 0.3)'
+          }}
+        >
           <div className="card-premium rounded-2xl p-3 sm:p-4 border-2 border-yellow-500/60 shadow-2xl relative overflow-hidden glow-effect max-w-xs mx-auto">
             {/* Animated Background */}
             <div className="absolute inset-0 bg-gradient-to-br from-yellow-900/20 via-red-900/20 to-yellow-900/20 animate-pulse" style={{ animationDuration: '3s' }} />
