@@ -24,46 +24,47 @@ const RPSScreen = () => {
   const { addTimeout } = useTimeoutManager();
 
   const handleRPS = (player, choice) => {
-    setRpsChoice(prev => {
-      const updated = { ...prev, [player]: choice };
+    // Get current state before updating
+    const currentState = useGameStore.getState();
+    const currentChoices = currentState.rpsChoice;
+    
+    // Update choice for this player
+    const updatedChoices = { ...currentChoices, [player]: choice };
+    setRpsChoice({ [player]: choice });
+    
+    // Check if both players have chosen
+    if (updatedChoices.PlayerA && updatedChoices.PlayerB) {
+      const winner = determineRPSWinner(updatedChoices.PlayerA, updatedChoices.PlayerB);
       
-      // Check if both players have chosen
-      if (player === PLAYERS.B && updated[PLAYERS.A]) {
-        const winner = determineRPSWinner(updated[PLAYERS.A], choice);
+      if (winner === null) {
+        // Tie - reset choices
+        setRpsResult('Tie! Choose again.');
+        setMessage('Tie! Both players must choose again.');
+        setRpsChoice({ PlayerA: null, PlayerB: null });
+      } else {
+        // Determine winner
+        const winnerName = getPlayerName(winner, playerNameA, playerNameB);
+        const resultText = `${winnerName} wins the draw! They will start first.`;
+        setRpsResult(resultText);
         
-        if (winner === null) {
-          // Tie - reset choices
-          setRpsResult('Tie! Choose again.');
-          setMessage('Tie! Both players must choose again.');
-          return { PlayerA: null, PlayerB: null };
-        } else {
-          // Determine winner
-          const winnerName = getPlayerName(winner, playerNameA, playerNameB);
-          const resultText = `${winnerName} wins the draw! They will start first.`;
-          setRpsResult(resultText);
-          
-          // Transition to drawing phase
-          const timeoutId = setTimeout(() => {
-            setGameState(GAME_STATES.DRAWING);
-            setPlayerTurn(winner);
-            drawCard(winner);
-            const state = useGameStore.getState();
-            if (state.currentCard) {
-              setMessage(`${winnerName}'s turn. Drawn card: ${state.currentCard.name}. Choose a position or Skip.`);
-            } else {
-              setMessage(`Game begins! It is ${winnerName}'s turn.`);
-            }
-          }, TRANSITION_DELAY);
-          
-          addTimeout(timeoutId);
-          return updated;
-        }
-      } else if (player === PLAYERS.A) {
-        setMessage(`${playerNameA || 'Player 1'} has chosen. Awaiting ${playerNameB || 'Player 2'}'s choice...`);
+        // Transition to drawing phase
+        const timeoutId = setTimeout(() => {
+          setGameState(GAME_STATES.DRAWING);
+          setPlayerTurn(winner);
+          drawCard(winner);
+          const state = useGameStore.getState();
+          if (state.currentCard) {
+            setMessage(`${winnerName}'s turn. Drawn card: ${state.currentCard.name}. Choose a position or Skip.`);
+          } else {
+            setMessage(`Game begins! It is ${winnerName}'s turn.`);
+          }
+        }, TRANSITION_DELAY);
+        
+        addTimeout(timeoutId);
       }
-      
-      return updated;
-    });
+    } else if (player === PLAYERS.A) {
+      setMessage(`${playerNameA || 'Player 1'} has chosen. Awaiting ${playerNameB || 'Player 2'}'s choice...`);
+    }
   };
 
   return (
