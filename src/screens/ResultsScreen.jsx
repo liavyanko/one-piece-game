@@ -58,15 +58,33 @@ const TeamComparisonScreen = () => {
   };
 
   return (
-    <div className="flex-1 flex flex-col min-h-0 overflow-y-auto" style={{ WebkitOverflowScrolling: 'touch', overscrollBehaviorY: 'contain' }}>
-      <div className="flex-1 space-y-4 pb-6">
+    <div 
+      className="flex-1 flex flex-col min-h-0 w-full"
+      style={{ 
+        WebkitOverflowScrolling: 'touch',
+        overscrollBehaviorY: 'contain',
+        touchAction: 'pan-y',
+        position: 'relative',
+        height: '100%',
+        overflow: 'hidden'
+      }}
+    >
+      <div 
+        className="flex-1 overflow-y-auto w-full"
+        style={{
+          WebkitOverflowScrolling: 'touch',
+          overscrollBehaviorY: 'contain',
+          touchAction: 'pan-y',
+          paddingBottom: '2rem'
+        }}
+      >
         {/* Team Comparison Section */}
-        <div className="mt-5 p-5 sm:p-6 card-premium rounded-2xl shadow-2xl border-2 border-blue-500/50 relative overflow-hidden">
+        <div className="mt-5 p-4 sm:p-6 card-premium rounded-2xl shadow-2xl border-2 border-blue-500/50 relative overflow-visible w-full max-w-full">
           {/* Animated Background */}
           <div className="absolute inset-0 bg-gradient-to-br from-blue-900/40 via-blue-800/30 to-blue-900/40" />
           <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,rgba(59,130,246,0.1)_1px,transparent_1px)] bg-[length:30px_30px]" />
           
-          <div className="relative z-10">
+          <div className="relative z-10 w-full">
             <TeamComparison 
               teamA={teamA}
               teamB={teamB}
@@ -75,7 +93,7 @@ const TeamComparisonScreen = () => {
             />
             
             {/* See Battle Results Button */}
-            <div className="mt-6">
+            <div className="mt-6 w-full">
               <Button
                 onClick={handleSeeBattleResults}
                 variant="primary"
@@ -117,10 +135,28 @@ const BattleResultsScreen = () => {
   const resetGame = useGameStore((state) => state.resetGame);
 
   return (
-    <div className="flex-1 flex flex-col min-h-0 overflow-y-auto" style={{ WebkitOverflowScrolling: 'touch', overscrollBehaviorY: 'contain' }}>
-      <div className="flex-1 space-y-4 pb-6">
+    <div 
+      className="flex-1 flex flex-col min-h-0 w-full"
+      style={{ 
+        WebkitOverflowScrolling: 'touch',
+        overscrollBehaviorY: 'contain',
+        touchAction: 'pan-y',
+        position: 'relative',
+        height: '100%',
+        overflow: 'hidden'
+      }}
+    >
+      <div 
+        className="flex-1 overflow-y-auto w-full"
+        style={{
+          WebkitOverflowScrolling: 'touch',
+          overscrollBehaviorY: 'contain',
+          touchAction: 'pan-y',
+          paddingBottom: '2rem'
+        }}
+      >
         {/* Battle Results Section */}
-        <div className="mt-5 p-5 sm:p-6 card-premium rounded-2xl shadow-2xl border-2 border-red-500/50 text-center relative overflow-hidden">
+        <div className="mt-5 p-4 sm:p-6 card-premium rounded-2xl shadow-2xl border-2 border-red-500/50 text-center relative overflow-visible w-full max-w-full">
           {/* Animated Background */}
           <div className="absolute inset-0 bg-gradient-to-br from-red-900/40 via-red-800/30 to-red-900/40" />
           <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,rgba(239,68,68,0.1)_1px,transparent_1px)] bg-[length:30px_30px]" />

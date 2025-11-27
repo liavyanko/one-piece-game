@@ -636,6 +636,42 @@ button, a {
   will-change: scroll-position;
 }
 
+/* iOS Chrome specific fixes for Results Screen */
+@media screen and (-webkit-min-device-pixel-ratio: 0) {
+  /* Chrome on iOS specific fixes */
+  .results-screen-container {
+    -webkit-overflow-scrolling: touch;
+    overflow-y: auto;
+    height: 100%;
+    position: relative;
+    width: 100%;
+    max-width: 100%;
+  }
+  
+  .results-screen-container * {
+    max-width: 100%;
+    box-sizing: border-box;
+  }
+  
+  /* Prevent floating elements */
+  .results-screen-container .card-premium {
+    position: relative !important;
+    float: none !important;
+    clear: both;
+  }
+  
+  /* Fix transform issues on mobile */
+  @media (max-width: 640px) {
+    .results-screen-container [style*="transform"] {
+      transform: none !important;
+    }
+    
+    .results-screen-container .transform {
+      transform: scale(0.9) !important;
+    }
+  }
+}
+
 /* Prevent pull-to-refresh on iOS */
 body {
   overscroll-behavior-y: contain;
