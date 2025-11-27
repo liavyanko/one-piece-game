@@ -59,7 +59,7 @@ const TeamComparisonScreen = () => {
 
   return (
     <div 
-      className="flex-1 flex flex-col min-h-0 w-full"
+      className="flex-1 flex flex-col min-h-0 w-full relative"
       style={{ 
         WebkitOverflowScrolling: 'touch',
         overscrollBehaviorY: 'contain',
@@ -71,7 +71,7 @@ const TeamComparisonScreen = () => {
         flexDirection: 'column'
       }}
     >
-      {/* Scrollable Content Area */}
+      {/* Scrollable Content Area - with bottom padding for fixed button */}
       <div 
         className="flex-1 overflow-y-auto w-full"
         style={{
@@ -79,11 +79,12 @@ const TeamComparisonScreen = () => {
           overscrollBehaviorY: 'contain',
           touchAction: 'pan-y',
           flex: '1 1 auto',
-          minHeight: 0
+          minHeight: 0,
+          paddingBottom: '100px' // Space for fixed button
         }}
       >
         {/* Team Comparison Section */}
-        <div className="mt-3 sm:mt-5 p-3 sm:p-4 md:p-6 card-premium rounded-2xl shadow-2xl border-2 border-blue-500/50 relative overflow-visible w-full max-w-full mb-24">
+        <div className="mt-3 sm:mt-5 p-3 sm:p-4 md:p-6 card-premium rounded-2xl shadow-2xl border-2 border-blue-500/50 relative overflow-visible w-full max-w-full">
           {/* Animated Background */}
           <div className="absolute inset-0 bg-gradient-to-br from-blue-900/40 via-blue-800/30 to-blue-900/40 rounded-2xl" />
           <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,rgba(59,130,246,0.1)_1px,transparent_1px)] bg-[length:30px_30px] rounded-2xl" />
@@ -99,11 +100,16 @@ const TeamComparisonScreen = () => {
         </div>
       </div>
       
-      {/* Sticky Button at Bottom - Always Accessible */}
+      {/* Fixed Button at Bottom - Always Visible and Accessible */}
       <div 
-        className="sticky bottom-0 left-0 right-0 w-full p-3 sm:p-4 bg-gradient-to-t from-gray-900 via-gray-900/95 to-transparent backdrop-blur-md border-t border-yellow-600/30 z-50"
+        className="fixed bottom-0 left-0 right-0 w-full p-3 sm:p-4 bg-gradient-to-t from-gray-900 via-gray-900/98 to-gray-900/95 backdrop-blur-lg border-t-2 border-yellow-600/40 z-50"
         style={{
-          boxShadow: '0 -4px 20px rgba(0, 0, 0, 0.5)'
+          boxShadow: '0 -4px 30px rgba(0, 0, 0, 0.7), 0 -2px 10px rgba(212, 175, 55, 0.2)',
+          maxWidth: '448px', // Match max-w-md from App.jsx
+          margin: '0 auto',
+          left: '50%',
+          transform: 'translateX(-50%)',
+          WebkitTransform: 'translateX(-50%)'
         }}
       >
         <Button
