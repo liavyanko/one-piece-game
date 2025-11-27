@@ -6,6 +6,7 @@ import React, { useState, useEffect, useCallback, useMemo, useRef } from 'react'
 
 const GAME_STATES = {
   INIT: 'INIT',
+  NAME_INPUT: 'NAME_INPUT',
   RPS: 'RPS',
   DRAWING: 'DRAWING',
   END: 'END'
@@ -582,6 +583,8 @@ const App = () => {
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState('Welcome to the One Piece Card Draft! Build your ultimate pirate crew by drafting characters. Each player fills 8 positions (Captain, Vice Captain, Tank, Swordsman, Healer, Sniper, Support 1, Support 2). Take turns drawing cards and placing them strategically. You can skip once per game to get another card. When both crews are complete, AI judges the winner based on team strength, role suitability, and synergy. Ready to set sail?');
   const [error, setError] = useState(null);
+  const [playerNameA, setPlayerNameA] = useState('');
+  const [playerNameB, setPlayerNameB] = useState('');
 
   // Refs for cleanup
   const timeoutRefs = useRef([]);
@@ -638,8 +641,9 @@ const App = () => {
     const [cardToDraw, ...restOfDeck] = deck;
     setDeck(restOfDeck);
     setCurrentCard(cardToDraw);
-    setMessage(`${player}'s turn. Drawn card: ${cardToDraw.name}. Choose a position or Skip.`);
-  }, [deck, deckEmpty]);
+    const playerName = player === PLAYERS.A ? (playerNameA || 'Player 1') : (playerNameB || 'Player 2');
+    setMessage(`${playerName}'s turn. Drawn card: ${cardToDraw.name}. Choose a position or Skip.`);
+  }, [deck, deckEmpty, playerNameA, playerNameB]);
 
   /**
    * Handles Rock-Paper-Scissors choice
@@ -659,27 +663,29 @@ const App = () => {
           return { PlayerA: null, PlayerB: null };
         } else {
           // Determine winner
-          const resultText = `${winner} wins the draw! They will start first.`;
+          const winnerName = winner === PLAYERS.A ? (playerNameA || 'Player 1') : (playerNameB || 'Player 2');
+          const resultText = `${winnerName} wins the draw! They will start first.`;
           setRpsResult(resultText);
           
-          // Transition to drawing phase
-          const timeoutId = setTimeout(() => {
-            setGameState(GAME_STATES.DRAWING);
-            setPlayerTurn(winner);
-            setMessage(`Game begins! It is ${winner}'s turn.`);
-            drawCard(winner);
-          }, TRANSITION_DELAY);
+            // Transition to drawing phase
+            const timeoutId = setTimeout(() => {
+              setGameState(GAME_STATES.DRAWING);
+              setPlayerTurn(winner);
+              const winnerName = winner === PLAYERS.A ? (playerNameA || 'Player 1') : (playerNameB || 'Player 2');
+              setMessage(`Game begins! It is ${winnerName}'s turn.`);
+              drawCard(winner);
+            }, TRANSITION_DELAY);
           
           timeoutRefs.current.push(timeoutId);
           return updated;
         }
       } else if (player === PLAYERS.A) {
-        setMessage(`Player A has chosen. Awaiting Player B's choice...`);
+        setMessage(`${playerNameA || 'Player 1'} has chosen. Awaiting ${playerNameB || 'Player 2'}'s choice...`);
       }
       
       return updated;
     });
-  }, [drawCard]);
+  }, [drawCard, playerNameA, playerNameB]);
 
   /**
    * Handles card placement or skip action
@@ -700,7 +706,8 @@ const App = () => {
       
       setSkipUsed(true);
       setCurrentCard(null);
-      setMessage(`${playerTurn} skipped the card. Drawing another card...`);
+      const playerName = playerTurn === PLAYERS.A ? (playerNameA || 'Player 1') : (playerNameB || 'Player 2');
+      setMessage(`${playerName} skipped the card. Drawing another card...`);
       
       // Keep the same player's turn and draw another card
       if (!allSlotsFilled && !deckEmpty) {
@@ -709,8 +716,9 @@ const App = () => {
       } else if (deckEmpty) {
         // If deck is empty, then pass turn to opponent
         const nextPlayer = isPlayerA ? PLAYERS.B : PLAYERS.A;
+        const nextPlayerName = nextPlayer === PLAYERS.A ? (playerNameA || 'Player 1') : (playerNameB || 'Player 2');
         setPlayerTurn(nextPlayer);
-        setMessage('Deck is empty. Passing turn to opponent.');
+        setMessage(`Deck is empty. Passing turn to ${nextPlayerName}.`);
       }
       return;
     }
@@ -787,11 +795,11 @@ Team Synergy: The balance and effectiveness of the crew as a whole (e.g., does t
 
 Crew Data:
 
-Crew A (Player A):
+Crew A (${playerNameA || 'Player 1'}):
 
 ${teamAString}
 
-Crew B (Player B):
+Crew B (${playerNameB || 'Player 2'}):
 
 ${teamBString}
 
@@ -872,7 +880,8 @@ REQUIRED RESPONSE FORMAT: Return ONLY the JSON object defined in the System Inst
 
       if (result && result.winner) {
         setWinner(result);
-        setMessage(`Judgment complete! The winner is ${result.winner}.`);
+        const winnerName = result.winner === PLAYERS.A ? (playerNameA || 'Player 1') : (playerNameB || 'Player 2');
+        setMessage(`Judgment complete! The winner is ${winnerName}!`);
         setError(null);
       } else {
         const errorMessage = lastError?.message || 'Unknown error occurred';
@@ -916,6 +925,8 @@ REQUIRED RESPONSE FORMAT: Return ONLY the JSON object defined in the System Inst
     setLoading(false);
     setMessage('Welcome to the One Piece Card Draft! Build your ultimate pirate crew by drafting characters. Each player fills 8 positions (Captain, Vice Captain, Tank, Swordsman, Healer, Sniper, Support 1, Support 2). Take turns drawing cards and placing them strategically. You can skip once per game to get another card. When both crews are complete, AI judges the winner based on team strength, role suitability, and synergy. Ready to set sail?');
     setError(null);
+    setPlayerNameA('');
+    setPlayerNameB('');
   }, []);
 
   // ============================================================================
@@ -1055,10 +1066,10 @@ REQUIRED RESPONSE FORMAT: Return ONLY the JSON object defined in the System Inst
 
         {/* Phase 1: Initialization - Centered Opening Screen */}
         {gameState === GAME_STATES.INIT && (
-          <div className="flex-1 flex flex-col items-center justify-center text-center py-8">
+          <div className="flex-1 flex flex-col items-center justify-center text-center py-8 animate-fadeIn">
             {/* Premium Header with One Piece Theme */}
             <div className="mb-6 sm:mb-8">
-              <div className="relative inline-block mb-4">
+              <div className="relative inline-block mb-4 animate-float" style={{ animationDuration: '3s' }}>
                 <h1 className="text-3xl sm:text-4xl md:text-5xl font-black text-gold-gradient mb-2 uppercase tracking-wider relative z-10">
                   🎩 ONE PIECE DRAFT
                 </h1>
@@ -1068,7 +1079,7 @@ REQUIRED RESPONSE FORMAT: Return ONLY the JSON object defined in the System Inst
               </div>
               
               {/* Game Rules & Explanation - Premium Design */}
-              <div className="bg-gradient-to-r from-yellow-900/80 via-amber-900/80 to-yellow-900/80 p-4 sm:p-5 rounded-xl text-left font-medium text-xs sm:text-sm text-amber-100 border-2 border-yellow-600/50 shadow-xl backdrop-blur-sm relative overflow-hidden max-w-lg mx-auto">
+              <div className="bg-gradient-to-r from-yellow-900/80 via-amber-900/80 to-yellow-900/80 p-4 sm:p-5 rounded-xl text-left font-medium text-xs sm:text-sm text-amber-100 border-2 border-yellow-600/50 shadow-xl backdrop-blur-sm relative overflow-hidden max-w-lg mx-auto animate-slideUp">
                 <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/5 to-transparent animate-shimmer" />
                 <div className="relative z-10 space-y-3">
                   <div className="font-black text-gold-gradient text-sm sm:text-base mb-2 text-center">
@@ -1095,10 +1106,10 @@ REQUIRED RESPONSE FORMAT: Return ONLY the JSON object defined in the System Inst
             </div>
 
             {/* Premium Start Button - Centered */}
-            <div className="mt-6 sm:mt-8">
+            <div className="mt-6 sm:mt-8 animate-slideUp" style={{ animationDelay: '0.2s' }}>
               <button 
-                onClick={() => setGameState(GAME_STATES.RPS)} 
-                className="button-premium text-gray-900 font-black py-5 px-12 rounded-2xl text-lg sm:text-xl relative glow-effect"
+                onClick={() => setGameState(GAME_STATES.NAME_INPUT)} 
+                className="button-premium text-gray-900 font-black py-5 px-12 rounded-2xl text-lg sm:text-xl relative glow-effect transform transition-all duration-300 hover:scale-105"
                 aria-label="Start new game"
               >
                 <span className="relative z-10 flex items-center gap-3">
@@ -1108,6 +1119,74 @@ REQUIRED RESPONSE FORMAT: Return ONLY the JSON object defined in the System Inst
                 </span>
               </button>
               <p className="mt-4 text-xs text-gray-400 font-medium">Begin Your Grand Adventure</p>
+            </div>
+          </div>
+        )}
+
+        {/* Phase 1.5: Player Name Input */}
+        {gameState === GAME_STATES.NAME_INPUT && (
+          <div className="flex-1 flex flex-col items-center justify-center text-center py-8 animate-fadeIn">
+            <div className="w-full max-w-md space-y-6">
+              <h2 className="text-2xl sm:text-3xl font-black text-gold-gradient mb-6 animate-slideDown">
+                ⚓ Enter Player Names ⚓
+              </h2>
+              
+              {/* Player A Name Input */}
+              <div className="card-premium p-5 rounded-2xl border-2 border-blue-500/60 relative overflow-hidden animate-slideLeft">
+                <div className="absolute inset-0 bg-gradient-to-br from-blue-900/20 via-blue-800/10 to-blue-900/20" />
+                <label className="block text-sm font-bold text-blue-200 mb-3 relative z-10">
+                  🏴‍☠️ Player 1 Name
+                </label>
+                <input
+                  type="text"
+                  value={playerNameA}
+                  onChange={(e) => setPlayerNameA(e.target.value)}
+                  placeholder="Enter Player 1 name..."
+                  className="w-full px-4 py-3 rounded-xl bg-gray-900/80 border-2 border-blue-500/50 text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-blue-400 transition-all duration-300 text-center font-bold text-lg"
+                  maxLength={20}
+                  autoFocus
+                />
+              </div>
+
+              {/* Player B Name Input */}
+              <div className="card-premium p-5 rounded-2xl border-2 border-red-500/60 relative overflow-hidden animate-slideRight">
+                <div className="absolute inset-0 bg-gradient-to-br from-red-900/20 via-red-800/10 to-red-900/20" />
+                <label className="block text-sm font-bold text-red-200 mb-3 relative z-10">
+                  🏴‍☠️ Player 2 Name
+                </label>
+                <input
+                  type="text"
+                  value={playerNameB}
+                  onChange={(e) => setPlayerNameB(e.target.value)}
+                  placeholder="Enter Player 2 name..."
+                  className="w-full px-4 py-3 rounded-xl bg-gray-900/80 border-2 border-red-500/50 text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-red-400 focus:border-red-400 transition-all duration-300 text-center font-bold text-lg"
+                  maxLength={20}
+                />
+              </div>
+
+              {/* Continue Button */}
+              <button
+                onClick={() => {
+                  if (playerNameA.trim() && playerNameB.trim()) {
+                    setMessage(`Welcome ${playerNameA.trim()} and ${playerNameB.trim()}! Let's determine who goes first.`);
+                    setGameState(GAME_STATES.RPS);
+                  } else {
+                    setError('Please enter names for both players!');
+                  }
+                }}
+                disabled={!playerNameA.trim() || !playerNameB.trim()}
+                className={`w-full button-premium text-gray-900 font-black py-4 px-8 rounded-2xl text-lg relative glow-effect transform transition-all duration-300 ${
+                  (!playerNameA.trim() || !playerNameB.trim()) 
+                    ? 'opacity-50 cursor-not-allowed' 
+                    : 'hover:scale-105'
+                }`}
+              >
+                <span className="relative z-10 flex items-center justify-center gap-2">
+                  <span>⚔️</span>
+                  <span>Continue to Rock-Paper-Scissors</span>
+                  <span>⚔️</span>
+                </span>
+              </button>
             </div>
           </div>
         )}
@@ -1141,12 +1220,12 @@ REQUIRED RESPONSE FORMAT: Return ONLY the JSON object defined in the System Inst
             
             {/* Player A's Turn - Premium Design */}
             {!rpsChoice.PlayerA && (
-              <div className="p-5 rounded-xl border-2 border-dashed border-blue-500/60 bg-gradient-to-br from-blue-900/40 via-blue-800/30 to-blue-900/40 backdrop-blur-sm relative z-10">
+              <div className="p-5 rounded-xl border-2 border-dashed border-blue-500/60 bg-gradient-to-br from-blue-900/40 via-blue-800/30 to-blue-900/40 backdrop-blur-sm relative z-10 animate-slideLeft">
                 <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,rgba(59,130,246,0.1)_1px,transparent_1px)] bg-[length:20px_20px] opacity-50" />
                 <h3 className="text-base sm:text-lg font-black text-blue-200 mb-2 relative z-10">
-                  ⚓ Player A - Your Turn
+                  ⚓ {playerNameA || 'Player 1'} - Your Turn
                 </h3>
-                <p className="text-xs text-gray-300 mb-4 relative z-10">Choose your option. Player B cannot see your choice.</p>
+                <p className="text-xs text-gray-300 mb-4 relative z-10">Choose your option. {playerNameB || 'Player 2'} cannot see your choice.</p>
                 <div className="flex flex-wrap justify-center gap-2">
                   <RPSButton 
                     choice={RPS_CHOICES.ROCK} 
@@ -1176,20 +1255,20 @@ REQUIRED RESPONSE FORMAT: Return ONLY the JSON object defined in the System Inst
             {/* Player A Has Chosen - Premium Locked State */}
             {rpsChoice.PlayerA && !rpsChoice.PlayerB && (
               <>
-                <div className="mb-4 p-4 rounded-xl border-2 border-solid border-blue-500/60 bg-gradient-to-br from-blue-900/30 to-blue-800/20 backdrop-blur-sm relative z-10">
+                <div className="mb-4 p-4 rounded-xl border-2 border-solid border-blue-500/60 bg-gradient-to-br from-blue-900/30 to-blue-800/20 backdrop-blur-sm relative z-10 animate-pulse">
                   <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,rgba(59,130,246,0.1)_1px,transparent_1px)] bg-[length:15px_15px] opacity-30" />
-                  <h3 className="text-sm sm:text-base font-black text-blue-200 mb-2 relative z-10">⚓ Player A</h3>
+                  <h3 className="text-sm sm:text-base font-black text-blue-200 mb-2 relative z-10">⚓ {playerNameA || 'Player 1'}</h3>
                   <p className="text-xs font-bold text-green-400 relative z-10">🔒 Choice Locked</p>
-                  <p className="text-xs text-gray-400 mt-1 relative z-10">Waiting for Player B...</p>
+                  <p className="text-xs text-gray-400 mt-1 relative z-10">Waiting for {playerNameB || 'Player 2'}...</p>
                 </div>
 
                 {/* Player B's Turn - Premium Design */}
-                <div className="p-5 rounded-xl border-2 border-dashed border-red-500/60 bg-gradient-to-br from-red-900/40 via-red-800/30 to-red-900/40 backdrop-blur-sm relative z-10">
+                <div className="p-5 rounded-xl border-2 border-dashed border-red-500/60 bg-gradient-to-br from-red-900/40 via-red-800/30 to-red-900/40 backdrop-blur-sm relative z-10 animate-slideRight">
                   <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,rgba(239,68,68,0.1)_1px,transparent_1px)] bg-[length:20px_20px] opacity-50" />
                   <h3 className="text-base sm:text-lg font-black text-red-200 mb-2 relative z-10">
-                    ⚓ Player B - Your Turn
+                    ⚓ {playerNameB || 'Player 2'} - Your Turn
                   </h3>
-                  <p className="text-xs text-gray-300 mb-4 relative z-10">Choose your option. Player A cannot see your choice.</p>
+                  <p className="text-xs text-gray-300 mb-4 relative z-10">Choose your option. {playerNameA || 'Player 1'} cannot see your choice.</p>
                   <div className="flex flex-wrap justify-center gap-2">
                     <RPSButton 
                       choice={RPS_CHOICES.ROCK} 
@@ -1220,12 +1299,12 @@ REQUIRED RESPONSE FORMAT: Return ONLY the JSON object defined in the System Inst
             {/* Both Players Have Chosen - Premium Results Display */}
             {rpsChoice.PlayerA && rpsChoice.PlayerB && (
               <>
-                <div className="mb-3 p-4 rounded-xl border-2 border-solid border-blue-500/60 bg-gradient-to-br from-blue-900/40 to-blue-800/30 backdrop-blur-sm relative z-10">
-                  <h3 className="text-sm sm:text-base font-black text-blue-200 mb-1 relative z-10">⚓ Player A</h3>
+                <div className="mb-3 p-4 rounded-xl border-2 border-solid border-blue-500/60 bg-gradient-to-br from-blue-900/40 to-blue-800/30 backdrop-blur-sm relative z-10 animate-slideLeft">
+                  <h3 className="text-sm sm:text-base font-black text-blue-200 mb-1 relative z-10">⚓ {playerNameA || 'Player 1'}</h3>
                   <p className="text-xs font-bold text-blue-100 relative z-10">Choice: <span className="text-gold-gradient">{rpsChoice.PlayerA}</span></p>
                 </div>
-                <div className="mb-4 p-4 rounded-xl border-2 border-solid border-red-500/60 bg-gradient-to-br from-red-900/40 to-red-800/30 backdrop-blur-sm relative z-10">
-                  <h3 className="text-sm sm:text-base font-black text-red-200 mb-1 relative z-10">⚓ Player B</h3>
+                <div className="mb-4 p-4 rounded-xl border-2 border-solid border-red-500/60 bg-gradient-to-br from-red-900/40 to-red-800/30 backdrop-blur-sm relative z-10 animate-slideRight">
+                  <h3 className="text-sm sm:text-base font-black text-red-200 mb-1 relative z-10">⚓ {playerNameB || 'Player 2'}</h3>
                   <p className="text-xs font-bold text-red-100 relative z-10">Choice: <span className="text-gold-gradient">{rpsChoice.PlayerB}</span></p>
                 </div>
                 {rpsResult && (
@@ -1242,40 +1321,40 @@ REQUIRED RESPONSE FORMAT: Return ONLY the JSON object defined in the System Inst
         {/* Phase 3: Drawing and Placement */}
         {gameState === GAME_STATES.DRAWING && (
           <div className="flex-1 flex flex-col min-h-0" style={{ WebkitOverflowScrolling: 'touch', overscrollBehaviorY: 'contain' }}>
-            {/* Current Card Display - Premium Spotlight */}
+            {/* Current Card Display - Dynamic Floating Card */}
             {currentCard && (
-              <div className="relative z-30 mb-4 sm:mb-5 flex-shrink-0 animate-cardDraw">
-                <div className="card-premium rounded-2xl p-4 sm:p-5 border-2 border-yellow-500/60 shadow-2xl relative overflow-hidden glow-effect">
+              <div className="relative z-30 mb-3 sm:mb-4 flex-shrink-0 animate-cardSlideIn">
+                <div className="card-premium rounded-2xl p-3 sm:p-4 border-2 border-yellow-500/60 shadow-2xl relative overflow-hidden glow-effect max-w-xs mx-auto">
                   {/* Animated Background */}
-                  <div className="absolute inset-0 bg-gradient-to-br from-yellow-900/20 via-red-900/20 to-yellow-900/20" />
+                  <div className="absolute inset-0 bg-gradient-to-br from-yellow-900/20 via-red-900/20 to-yellow-900/20 animate-pulse" style={{ animationDuration: '3s' }} />
                   <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,rgba(212,175,55,0.1)_1px,transparent_1px)] bg-[length:30px_30px]" />
                   
-                  <div className="text-center mb-4 relative z-10">
-                    <h3 className="text-base sm:text-lg md:text-xl font-black text-gold-gradient uppercase tracking-wider mb-3">
-                      ⚡ DRAWN CARD ⚡
+                  <div className="text-center mb-3 relative z-10">
+                    <h3 className="text-xs sm:text-sm font-black text-gold-gradient uppercase tracking-wider mb-2 animate-pulse">
+                      ⚡ NEW CARD ⚡
                     </h3>
-                    <div className="flex justify-center">
-                      <div className="transform scale-110 sm:scale-125 transition-transform duration-300 hover:scale-[1.15]">
+                    <div className="flex justify-center transform hover:scale-105 transition-transform duration-300">
+                      <div className="transform scale-90 sm:scale-100">
                         <Card character={currentCard} position="Unassigned" />
                       </div>
                     </div>
                   </div>
                   
-                  {/* Premium Skip Button */}
-                  <div className="flex justify-center mt-4 relative z-10">
+                  {/* Premium Skip Button - Compact */}
+                  <div className="flex justify-center mt-2 relative z-10">
                     <button
                       onClick={() => handlePlacementOrSkip('SKIP')}
                       disabled={playerTurn === PLAYERS.A ? skipUsedA : skipUsedB}
-                      className={`px-6 sm:px-8 py-3 sm:py-4 rounded-xl font-black transition-all duration-300 shadow-xl transform hover:scale-105 active:scale-95 text-sm sm:text-base relative overflow-hidden ${
+                      className={`px-4 sm:px-6 py-2 sm:py-3 rounded-xl font-black transition-all duration-300 shadow-xl transform hover:scale-105 active:scale-95 text-xs sm:text-sm relative overflow-hidden ${
                         (playerTurn === PLAYERS.A ? skipUsedA : skipUsedB)
                           ? 'bg-gradient-to-r from-gray-700 to-gray-800 text-gray-400 cursor-not-allowed border-2 border-gray-600'
                           : 'bg-gradient-to-r from-red-700 via-red-600 to-red-700 hover:from-red-800 hover:via-red-700 hover:to-red-800 text-white border-2 border-red-500/50 shadow-red-900/50'
                       }`}
                       aria-label="Skip this card"
                     >
-                      <span className="relative z-10 flex items-center gap-2">
+                      <span className="relative z-10 flex items-center gap-1.5">
                         <span>⏭️</span>
-                        <span>Skip Card (1x Use)</span>
+                        <span>Skip (1x)</span>
                       </span>
                       {!(playerTurn === PLAYERS.A ? skipUsedA : skipUsedB) && (
                         <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-full hover:translate-x-full transition-transform duration-700" />
@@ -1291,7 +1370,7 @@ REQUIRED RESPONSE FORMAT: Return ONLY the JSON object defined in the System Inst
               <div className="pb-4">
                 <TeamDisplay 
                   team={teamA} 
-                  teamName="Player A" 
+                  teamName={playerNameA || 'Player 1'} 
                   isCurrentPlayer={playerTurn === PLAYERS.A}
                   skipUsed={skipUsedA}
                   isRPSPhase={false}
@@ -1301,7 +1380,7 @@ REQUIRED RESPONSE FORMAT: Return ONLY the JSON object defined in the System Inst
                 
                 <TeamDisplay 
                   team={teamB} 
-                  teamName="Player B" 
+                  teamName={playerNameB || 'Player 2'} 
                   isCurrentPlayer={playerTurn === PLAYERS.B}
                   skipUsed={skipUsedB}
                   isRPSPhase={false}
@@ -1338,10 +1417,10 @@ REQUIRED RESPONSE FORMAT: Return ONLY the JSON object defined in the System Inst
             )}
 
             {winner && !loading && (
-              <div className="relative z-10">
+              <div className="relative z-10 animate-fadeIn">
                 <div className="text-3xl sm:text-4xl md:text-5xl font-black text-gold-gradient my-6 drop-shadow-2xl animate-float">
                   <div className="inline-block bg-gradient-to-r from-yellow-400 via-yellow-300 to-yellow-400 bg-clip-text text-transparent">
-                    🏆 WINNER: {winner.winner} 🏆
+                    🏆 WINNER: {winner.winner === PLAYERS.A ? (playerNameA || 'Player 1') : (playerNameB || 'Player 2')} 🏆
                   </div>
                 </div>
                 <div className="card-premium p-4 sm:p-5 rounded-xl border-2 border-yellow-600/40 shadow-xl text-left backdrop-blur-sm">
