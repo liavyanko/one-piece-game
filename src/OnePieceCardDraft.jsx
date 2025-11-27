@@ -1132,36 +1132,46 @@ REQUIRED RESPONSE FORMAT: Return ONLY the JSON object defined in the System Inst
               </h2>
               
               {/* Player A Name Input */}
-              <div className="card-premium p-5 rounded-2xl border-2 border-blue-500/60 relative overflow-hidden animate-slideLeft">
-                <div className="absolute inset-0 bg-gradient-to-br from-blue-900/20 via-blue-800/10 to-blue-900/20" />
-                <label className="block text-sm font-bold text-blue-200 mb-3 relative z-10">
-                  🏴‍☠️ Player 1 Name
-                </label>
-                <input
-                  type="text"
-                  value={playerNameA}
-                  onChange={(e) => setPlayerNameA(e.target.value)}
-                  placeholder="Enter Player 1 name..."
-                  className="w-full px-4 py-3 rounded-xl bg-gray-900/80 border-2 border-blue-500/50 text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-blue-400 transition-all duration-300 text-center font-bold text-lg"
-                  maxLength={20}
-                  autoFocus
-                />
+              <div className="card-premium p-5 rounded-2xl border-2 border-blue-500/60 relative overflow-visible animate-slideLeft">
+                <div className="absolute inset-0 bg-gradient-to-br from-blue-900/20 via-blue-800/10 to-blue-900/20 pointer-events-none" />
+                <div className="relative z-20">
+                  <label className="block text-sm font-bold text-blue-200 mb-3">
+                    🏴‍☠️ Player 1 Name
+                  </label>
+                  <input
+                    type="text"
+                    value={playerNameA}
+                    onChange={(e) => setPlayerNameA(e.target.value)}
+                    onFocus={(e) => e.target.select()}
+                    placeholder="Enter Player 1 name..."
+                    className="w-full px-4 py-3 rounded-xl bg-gray-900/90 border-2 border-blue-500/50 text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-blue-400 transition-all duration-300 text-center font-bold text-lg relative z-20"
+                    maxLength={20}
+                    autoFocus
+                    autoComplete="off"
+                    style={{ pointerEvents: 'auto', WebkitUserSelect: 'text' }}
+                  />
+                </div>
               </div>
 
               {/* Player B Name Input */}
-              <div className="card-premium p-5 rounded-2xl border-2 border-red-500/60 relative overflow-hidden animate-slideRight">
-                <div className="absolute inset-0 bg-gradient-to-br from-red-900/20 via-red-800/10 to-red-900/20" />
-                <label className="block text-sm font-bold text-red-200 mb-3 relative z-10">
-                  🏴‍☠️ Player 2 Name
-                </label>
-                <input
-                  type="text"
-                  value={playerNameB}
-                  onChange={(e) => setPlayerNameB(e.target.value)}
-                  placeholder="Enter Player 2 name..."
-                  className="w-full px-4 py-3 rounded-xl bg-gray-900/80 border-2 border-red-500/50 text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-red-400 focus:border-red-400 transition-all duration-300 text-center font-bold text-lg"
-                  maxLength={20}
-                />
+              <div className="card-premium p-5 rounded-2xl border-2 border-red-500/60 relative overflow-visible animate-slideRight">
+                <div className="absolute inset-0 bg-gradient-to-br from-red-900/20 via-red-800/10 to-red-900/20 pointer-events-none" />
+                <div className="relative z-20">
+                  <label className="block text-sm font-bold text-red-200 mb-3">
+                    🏴‍☠️ Player 2 Name
+                  </label>
+                  <input
+                    type="text"
+                    value={playerNameB}
+                    onChange={(e) => setPlayerNameB(e.target.value)}
+                    onFocus={(e) => e.target.select()}
+                    placeholder="Enter Player 2 name..."
+                    className="w-full px-4 py-3 rounded-xl bg-gray-900/90 border-2 border-red-500/50 text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-red-400 focus:border-red-400 transition-all duration-300 text-center font-bold text-lg relative z-20"
+                    maxLength={20}
+                    autoComplete="off"
+                    style={{ pointerEvents: 'auto', WebkitUserSelect: 'text' }}
+                  />
+                </div>
               </div>
 
               {/* Continue Button */}
