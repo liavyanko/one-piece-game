@@ -66,23 +66,27 @@ const TeamComparisonScreen = () => {
         touchAction: 'pan-y',
         position: 'relative',
         height: '100%',
-        overflow: 'hidden'
+        overflow: 'hidden',
+        display: 'flex',
+        flexDirection: 'column'
       }}
     >
+      {/* Scrollable Content Area */}
       <div 
         className="flex-1 overflow-y-auto w-full"
         style={{
           WebkitOverflowScrolling: 'touch',
           overscrollBehaviorY: 'contain',
           touchAction: 'pan-y',
-          paddingBottom: '2rem'
+          flex: '1 1 auto',
+          minHeight: 0
         }}
       >
         {/* Team Comparison Section */}
-        <div className="mt-5 p-4 sm:p-6 card-premium rounded-2xl shadow-2xl border-2 border-blue-500/50 relative overflow-visible w-full max-w-full">
+        <div className="mt-3 sm:mt-5 p-3 sm:p-4 md:p-6 card-premium rounded-2xl shadow-2xl border-2 border-blue-500/50 relative overflow-visible w-full max-w-full mb-24">
           {/* Animated Background */}
-          <div className="absolute inset-0 bg-gradient-to-br from-blue-900/40 via-blue-800/30 to-blue-900/40" />
-          <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,rgba(59,130,246,0.1)_1px,transparent_1px)] bg-[length:30px_30px]" />
+          <div className="absolute inset-0 bg-gradient-to-br from-blue-900/40 via-blue-800/30 to-blue-900/40 rounded-2xl" />
+          <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,rgba(59,130,246,0.1)_1px,transparent_1px)] bg-[length:30px_30px] rounded-2xl" />
           
           <div className="relative z-10 w-full">
             <TeamComparison 
@@ -91,34 +95,39 @@ const TeamComparisonScreen = () => {
               playerNameA={playerNameA}
               playerNameB={playerNameB}
             />
-            
-            {/* See Battle Results Button */}
-            <div className="mt-6 w-full">
-              <Button
-                onClick={handleSeeBattleResults}
-                variant="primary"
-                size="lg"
-                className="w-full"
-                disabled={loading}
-              >
-                <span className="flex items-center justify-center gap-2">
-                  {loading ? (
-                    <>
-                      <span className="animate-spin">⏳</span>
-                      <span>Processing...</span>
-                    </>
-                  ) : (
-                    <>
-                      <span>⚔️</span>
-                      <span>See Battle Results</span>
-                      <span>⬇️</span>
-                    </>
-                  )}
-                </span>
-              </Button>
-            </div>
           </div>
         </div>
+      </div>
+      
+      {/* Sticky Button at Bottom - Always Accessible */}
+      <div 
+        className="sticky bottom-0 left-0 right-0 w-full p-3 sm:p-4 bg-gradient-to-t from-gray-900 via-gray-900/95 to-transparent backdrop-blur-md border-t border-yellow-600/30 z-50"
+        style={{
+          boxShadow: '0 -4px 20px rgba(0, 0, 0, 0.5)'
+        }}
+      >
+        <Button
+          onClick={handleSeeBattleResults}
+          variant="primary"
+          size="lg"
+          className="w-full"
+          disabled={loading}
+        >
+          <span className="flex items-center justify-center gap-2">
+            {loading ? (
+              <>
+                <span className="animate-spin">⏳</span>
+                <span>Processing...</span>
+              </>
+            ) : (
+              <>
+                <span>⚔️</span>
+                <span>See Battle Results</span>
+                <span>⬇️</span>
+              </>
+            )}
+          </span>
+        </Button>
       </div>
     </div>
   );

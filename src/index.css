@@ -659,16 +659,27 @@ button, a {
     float: none !important;
     clear: both;
   }
+}
+
+/* Sticky Button Fix for Mobile */
+.sticky {
+  position: -webkit-sticky;
+  position: sticky;
+}
+
+/* Smooth scroll behavior */
+html {
+  scroll-behavior: smooth;
+}
+
+/* Mobile-optimized card animations */
+@media (max-width: 640px) {
+  .card-premium {
+    transform: none !important;
+  }
   
-  /* Fix transform issues on mobile */
-  @media (max-width: 640px) {
-    .results-screen-container [style*="transform"] {
-      transform: none !important;
-    }
-    
-    .results-screen-container .transform {
-      transform: scale(0.9) !important;
-    }
+  .card-premium:hover {
+    transform: translateY(-4px) scale(1.02) !important;
   }
 }
 
